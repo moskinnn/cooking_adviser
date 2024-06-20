@@ -102,7 +102,7 @@ class Gui:
                                   command=lambda: self.to_file(self.foodstuff, self.all_ingredients, self.how_to_make))
         self.btn_to_file.grid(row=12, column=0, columnspan=2, padx=(6, 0), pady=(8, 0), stick='we')
 
-        self.btn_open_file = Button()
+        self.btn_open_file = Button()   # в конце станет "Открыть файл"
 
         self.btn_exit = Button(self.root, text="Выход", height=2, command=self.close)
         self.btn_exit.grid(row=12, column=6, padx=(0, 5), pady=(8, 0), stick='we')
@@ -155,7 +155,7 @@ class Gui:
 
         self.ent_title.delete(0, END)
         self.ent_title.insert(0, " "+self.selected_dish)
-
+        # на фон лейбла подгружается фото из папки
         self.img = ImageTk.PhotoImage(file=f"food_images\\{self.five_results.loc[number, 'изображение']}.jpg")
         self.lbl_image.config(height=152, image=self.img)
 
