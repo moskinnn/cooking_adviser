@@ -165,21 +165,22 @@ class Gui:
     def get_recipe(self):
         """Выводит в два текстовых поля список ингредиентов и рецепт выбранного блюда"""
         self.all_ingredients = self.five_results.loc[self.choice, 'ингредиенты']
+        self.all_ingredients = "\n".join(self.all_ingredients).strip("[']")
         self.how_to_make = self.five_results.loc[self.choice, 'инструкция']
 
         self.txt_full_ingr.delete(1.0, END)
-        self.txt_full_ingr.insert(1.0, "\n".join(self.all_ingredients).strip("[']"))
+        self.txt_full_ingr.insert(1.0, self.all_ingredients)
         self.txt_full_instr.delete(1.0, END)
         self.txt_full_instr.insert(1.0, "\n".join(self.how_to_make))
 
     def to_file(self, input_list, ingredients, instruction):
         """Создает файл с введенным списком продуктов и рецептом выбранного блюда"""
         with open("recipe.txt", "w", encoding='utf-8') as file:
-            file.write("Будем использовать следующие продукты:\n")
+            file.write("Будем использовать следующие продукты:\n\n")
             file.write("\t" + ", ".join(input_list))
-            file.write('\n\nВсе ингредиенты для "' + self.selected_dish + '":\n')
-            file.writelines("\t" + ingredient + "\n" for ingredient in ingredients)
-            file.write('\nРецепт:\n\n')
+            file.write('\n\nВсе ингредиенты для "' + self.selected_dish + '":\n\n')
+            file.writelines(ingredients)
+            file.write('\n\nРецепт:\n\n')
             file.writelines(step + "\n" for step in instruction)
         # создается кнопка открытия записанного файла
         self.btn_open_file = Button(self.root, text="Открыть файл", height=2, command=self.open_notepad)
