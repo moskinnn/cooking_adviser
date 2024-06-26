@@ -13,7 +13,6 @@ import sqlite3 as sq
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from PIL import ImageTk
-from ast import literal_eval
 from tabulate import tabulate
 
 
@@ -126,9 +125,13 @@ class Gui:
         self.query_results = pd.DataFrame(cur.fetchall(),
                                           columns=['название_блюда', 'ингредиенты', 'инструкция', 'изображение'])
         # очищаем и приводим данные в двух полях к спискам
-        self.query_results['ингредиенты'] = self.query_results['ингредиенты'].apply(literal_eval)
+        self.query_results['ингредиенты'] = self.query_results['ингредиенты'].apply(self.str_to_list)
         self.query_results['инструкция'] = self.query_results['инструкция'].apply(lambda x: list(x.split(". ")))
         self.get_five_results()
+
+    @staticmethod
+    def str_to_list(string):
+        return (string.strip("'")).split("', '")
 
     def get_five_results(self):
         """Выбирает до пяти случайных рецептов из общего результата"""
@@ -165,7 +168,7 @@ class Gui:
         self.how_to_make = self.five_results.loc[self.choice, 'инструкция']
 
         self.txt_full_ingr.delete(1.0, END)
-        self.txt_full_ingr.insert(1.0, "\n".join(self.all_ingredients))
+        self.txt_full_ingr.insert(1.0, "\n".join(self.all_ingredients).strip("[']"))
         self.txt_full_instr.delete(1.0, END)
         self.txt_full_instr.insert(1.0, "\n".join(self.how_to_make))
 
