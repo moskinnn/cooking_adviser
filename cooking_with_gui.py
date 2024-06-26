@@ -159,7 +159,7 @@ class Gui:
         self.ent_title.delete(0, END)
         self.ent_title.insert(0, " "+self.selected_dish)
         # на фон лейбла подгружается фото из папки
-        self.img = ImageTk.PhotoImage(file=f"food_images\\{self.five_results.loc[number, 'изображение']}.jpg")
+        self.img = ImageTk.PhotoImage(file=f"food_images/{self.five_results.loc[number, 'изображение']}.jpg")
         self.lbl_image.config(height=152, image=self.img)
 
     def get_recipe(self):
