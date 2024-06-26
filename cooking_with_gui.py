@@ -13,7 +13,6 @@ import sqlite3 as sq
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 from PIL import ImageTk
-from ast import literal_eval
 from tabulate import tabulate
 
 
@@ -126,9 +125,13 @@ class Gui:
         self.query_results = pd.DataFrame(cur.fetchall(),
                                           columns=['название_блюда', 'ингредиенты', 'инструкция', 'изображение'])
         # очищаем и приводим данные в двух полях к спискам
-        self.query_results['ингредиенты'] = self.query_results['ингредиенты'].apply(literal_eval)
+        self.query_results['ингредиенты'] = self.query_results['ингредиенты'].apply(self.str_to_list)
         self.query_results['инструкция'] = self.query_results['инструкция'].apply(lambda x: list(x.split(". ")))
         self.get_five_results()
+
+    @staticmethod
+    def str_to_list(string):
+        return (string.strip("'")).split("', '")
 
     def get_five_results(self):
         """Выбирает до пяти случайных рецептов из общего результата"""
@@ -156,27 +159,28 @@ class Gui:
         self.ent_title.delete(0, END)
         self.ent_title.insert(0, " "+self.selected_dish)
         # на фон лейбла подгружается фото из папки
-        self.img = ImageTk.PhotoImage(file=f"food_images\\{self.five_results.loc[number, 'изображение']}.jpg")
+        self.img = ImageTk.PhotoImage(file=f"food_images/{self.five_results.loc[number, 'изображение']}.jpg")
         self.lbl_image.config(height=152, image=self.img)
 
     def get_recipe(self):
         """Выводит в два текстовых поля список ингредиентов и рецепт выбранного блюда"""
         self.all_ingredients = self.five_results.loc[self.choice, 'ингредиенты']
+        self.all_ingredients = "\n".join(self.all_ingredients).strip("[']")
         self.how_to_make = self.five_results.loc[self.choice, 'инструкция']
 
         self.txt_full_ingr.delete(1.0, END)
-        self.txt_full_ingr.insert(1.0, "\n".join(self.all_ingredients))
+        self.txt_full_ingr.insert(1.0, self.all_ingredients)
         self.txt_full_instr.delete(1.0, END)
         self.txt_full_instr.insert(1.0, "\n".join(self.how_to_make))
 
     def to_file(self, input_list, ingredients, instruction):
         """Создает файл с введенным списком продуктов и рецептом выбранного блюда"""
         with open("recipe.txt", "w", encoding='utf-8') as file:
-            file.write("Будем использовать следующие продукты:\n")
+            file.write("Будем использовать следующие продукты:\n\n")
             file.write("\t" + ", ".join(input_list))
-            file.write('\n\nВсе ингредиенты для "' + self.selected_dish + '":\n')
-            file.writelines("\t" + ingredient + "\n" for ingredient in ingredients)
-            file.write('\nРецепт:\n\n')
+            file.write('\n\nВсе ингредиенты для "' + self.selected_dish + '":\n\n')
+            file.writelines(ingredients)
+            file.write('\n\nРецепт:\n\n')
             file.writelines(step + "\n" for step in instruction)
         # создается кнопка открытия записанного файла
         self.btn_open_file = Button(self.root, text="Открыть файл", height=2, command=self.open_notepad)
